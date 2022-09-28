@@ -1,3 +1,4 @@
+import time
 import math       
 from pylab import *
 import subprocess                 # For issuing commands to the OS.
@@ -8,8 +9,10 @@ import matplotlib.font_manager as font_manager
 import pylab
 import numpy as np
 #
-newton_raphson = True
+newton_raphson = False
 # 
+start = time.time()
+convengenceTime=0
 GridOnOff=1 # 0 if you want no grid, 1 if you want the grid to be active
 E = 25.e6
 L0 = Lt = 50
@@ -55,7 +58,7 @@ def get_f(eps_point_plastic_test, inputs):
     E = inputs['E']
     sigma_t = inputs['sigma_t']
     eps_plastic_test = inputs['eps_plastic_t'] + eps_point_plastic_test * dt
-    eps_point = inputs['eps_point']
+    eps_point = abs(inputs['eps_point'])
     W_TP = sigma_t+E*dt*(eps_point-eps_point_plastic_test)-get_sigma(sigma_0, K, n, m, eps_point_plastic_test, eps_plastic_test)
     return W_TP
     #
@@ -93,6 +96,7 @@ for t in times:
         if yielding > 0.:
             eps_point_plastic_test = 10**-10
             while yielding > error_evp:
+                convengenceTime+=1
                 Kevp=get_Kevp(eps_point_plastic_test,{'sigma_0': sigma_0, 'K': K, 'n': n, 'm': m, 'dt': dt, 'E': E,
                                                  'eps_plastic_t': eps_plastic_t,
                                                  'eps_point': eps_point_total, 'sigma_t': abs(sigma_t)})
@@ -103,7 +107,7 @@ for t in times:
 
             eps_point_plastic = eps_point_plastic_test
 
-        print('Newton method is used')
+#        print('Newton method is used')
 #Newton - Raphson finish
 
 #Bisection start
@@ -130,9 +134,9 @@ for t in times:
                     else:
                         x1 = x3
                     x3 = (x1+x2)/2
-
+                    convengenceTime+=1
             eps_point_plastic = x3
-            print('Bisection method is used')
+#          print('Bisection method is used')
 # Bisection finish
 
 
@@ -158,6 +162,7 @@ for t in times:
     eps_plastics.append(eps_plastic)
     eps_point_plastics.append(eps_point_plastic)
     Velocity.append(velocity_temp)
+end = time.time()
 #
 plt.figure()
 plt.plot(times, Velocity)
@@ -215,3 +220,5 @@ if(GridOnOff==1):
 	grid('on')
 
 plt.show()
+print("程序运行时间："+str(end-start)+"秒")
+print("程序运行次数："+str(convengenceTime)+"次")
