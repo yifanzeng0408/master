@@ -7,8 +7,11 @@ import matplotlib.pyplot as plt                      # For determining the Pytho
 import matplotlib.font_manager as font_manager
 import pylab
 import numpy as np
-#
-newton_raphson = True
+import datetime
+# method selected
+newton_raphson = False
+# record solving time
+startTimer = datetime.datetime.now()
 # 
 GridOnOff=1 # 0 if you want no grid, 1 if you want the grid to be active
 E = 25.e6
@@ -23,6 +26,7 @@ t = t0 = 0.
 tf = 23.e1  #23.e1
 dt = 5.e-3
 N = int((tf-t0)/dt) + 1
+iteration = 0
 #
 times = np.linspace(t0, tf, N, endpoint = True)
 #
@@ -102,8 +106,6 @@ for t in times:
                                                  'eps_point': eps_point_total, 'sigma_t': abs(sigma_t)})
 
             eps_point_plastic = eps_point_plastic_test
-
-        print('Newton method is used')
 #Newton - Raphson finish
 
 #Bisection start
@@ -130,11 +132,10 @@ for t in times:
                     else:
                         x1 = x3
                     x3 = (x1+x2)/2
+                    iteration += 1
 
             eps_point_plastic = x3
-            print('Bisection method is used')
 # Bisection finish
-
 
     eps_elastic_t = eps_elastic
     if sigma_t < 0:
@@ -158,6 +159,10 @@ for t in times:
     eps_plastics.append(eps_plastic)
     eps_point_plastics.append(eps_point_plastic)
     Velocity.append(velocity_temp)
+deltaTimer = (datetime.datetime.now() - startTimer).total_seconds()
+print('time to solve :{}'.format(deltaTimer))
+if newton_raphson == False:
+    print('Number of iterations to achieve convergence:', iteration)
 #
 plt.figure()
 plt.plot(times, Velocity)
