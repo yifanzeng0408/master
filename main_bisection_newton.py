@@ -1,4 +1,4 @@
-import time
+import datetime
 import math       
 from pylab import *
 import subprocess                 # For issuing commands to the OS.
@@ -11,8 +11,8 @@ import numpy as np
 #
 newton_raphson = False
 # 
-start = time.time()
-convengenceTime=0
+startTimer = datetime.datetime.now()
+iteration = 0
 GridOnOff=1 # 0 if you want no grid, 1 if you want the grid to be active
 E = 25.e6
 L0 = Lt = 50
@@ -134,7 +134,7 @@ for t in times:
                     else:
                         x1 = x3
                     x3 = (x1+x2)/2
-                    convengenceTime+=1
+                    iteration += 1
             eps_point_plastic = x3
 #          print('Bisection method is used')
 # Bisection finish
@@ -162,7 +162,10 @@ for t in times:
     eps_plastics.append(eps_plastic)
     eps_point_plastics.append(eps_point_plastic)
     Velocity.append(velocity_temp)
-end = time.time()
+deltaTimer = (datetime.datetime.now() - startTimer).total_seconds()
+print('time to solve:{}'.format(deltaTimer))
+if newton_raphson == False:
+    print('Number of iterations to achieve convergence is', iteration)
 #
 plt.figure()
 plt.plot(times, Velocity)
@@ -220,5 +223,3 @@ if(GridOnOff==1):
 	grid('on')
 
 plt.show()
-print("程序运行时间："+str(end-start)+"秒")
-print("程序运行次数："+str(convengenceTime)+"次")
